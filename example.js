@@ -8,21 +8,34 @@
  const driver = neo4j.driver(uri, neo4j.auth.basic(user, password))
  const session = driver.session()
 // test comment
- const person1Name = 'Alice'
- const person2Name = 'David'
+ let person1Name = 'Alicia';
+ let person2Name = 'Davidid';
+ let person3Name = 'Peterpeters';
+ let person4Name = 'Lucy2';
 
+const personNameObj = { personName: person1Name};
+
+let entity = "PersonType2"; // this expt shows can set entity labels okay. But is it good approach??
  try {
    // To learn more about the Cypher syntax, see https://neo4j.com/docs/cypher-manual/current/
    // The Reference Card is also a good resource for keywords https://neo4j.com/docs/cypher-refcard/current/
-   const writeQuery = `MERGE (p1:Person { name: $person1Name })
-                       MERGE (p2:Person { name: $person2Name })
+   const writeQuery = `MERGE (p1:${entity} { name: $person1Name, age:24})
+                       MERGE (p2:Person { name: $person2Name, age:68 })
                        MERGE (p1)-[:KNOWS]->(p2)
                        RETURN p1, p2`
 
    // Write transactions allow the driver to handle retries and transient errors
-   const writeResult = await session.writeTransaction(tx =>
+   let writeResult = await session.writeTransaction(tx =>
      tx.run(writeQuery, { person1Name, person2Name })
    )
+    person1Name = person3Name;
+    person2Name = person4Name;
+
+      writeResult = await session.writeTransaction(tx =>
+     tx.run(writeQuery, { person1Name, person2Name })
+   )
+
+
    writeResult.records.forEach(record => {
      const person1Node = record.get('p1')
      const person2Node = record.get('p2')
@@ -37,7 +50,7 @@
 
 
      const readResult = await session.readTransaction(tx =>
-     tx.run(readQuery, { personName: person1Name })
+     tx.run(readQuery, personNameObj)
    )
 
 
